@@ -4,12 +4,16 @@ class Passenger:
         self.DestinationFloor   = Start_Destination[1]
         self.WaitTime           = 0.0
         self.FinishTime         = 0.0
-        self.Status             = "WAITING"
+        self.Status             = "WAITING" #ARRIVED INLIFT
     def getStatus(self):                    return self.Status
     def setStatus(self, Status):            self.Status = Status
     def getStartFloor(self):                return self.StartFloor
     def getDestinationFloor(self):          return self.DestinationFloor
     def getWaitTime(self):                  return self.WaitTime
     def getFinishTime(self):                return self.FinishTime
-    def increaseWaitTime(self, Time):       self.WaitTime    += Time
-    def increaseFinishTime(self, Time):     self.FinishTime  += Time
+    def increaseTime(self, Time):
+        if self.Status == "WAITING":
+            self.WaitTime += Time
+            self.FinishTime += Time
+        elif self.Status == "INLIFT":
+            self.FinishTime += Time
