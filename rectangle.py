@@ -8,8 +8,8 @@ class Rectangle:
         self.Height = height
         self.Master = master
         if self.Master:
-            self.Upper = Rectangle(x, y+1, width, height / 8)
-            self.Lower = Rectangle(x, y+(7 * height / 8), width, height / 8)
+            self.Upper = Rectangle(x, y + 1, width, height / 8)
+            self.Lower = Rectangle(x, y + (7 * height / 8), width, height / 8)
         else:         
             self.Upper = 0
             self.Lower = 0

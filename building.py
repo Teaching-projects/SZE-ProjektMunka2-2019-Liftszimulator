@@ -3,6 +3,7 @@ import elevator
 import passenger
 import floor
 import config
+import rectangle
 
 class Building:
     def __init__(self, FloorNumber, ElevatorNumber):
@@ -13,10 +14,20 @@ class Building:
         self.Floors             = []
         self.Lines              = []
         for i in range(ElevatorNumber):
-            self.Elevators.append(elevator.Elevator(i))
+            self.Elevators.append(elevator.Elevator(i, config.FLOORHEIGHT))
             self.Floors.append([])
             [self.Floors[i].append(floor.Floor(self.Elevators[-1], j, config.FLOORHEIGHT)) for j in range(FloorNumber)]
-        [self.Lines.append([(0, i * config.FLOORHEIGHT), (config.SIZE[0], i * config.FLOORHEIGHT)]) for i in range(FloorNumber)]
+        [self.Lines.append([(100, i * config.FLOORHEIGHT), ((config.FLOORWIDTH - 1) + self.ElevatorNumber * config.FLOORDISTANCE, i * config.FLOORHEIGHT)]) for i in range(FloorNumber)]
+    def resize(self, oldsize):
+        self.Lines.clear()
+        [self.Lines.append([(100, i * config.FLOORHEIGHT), ((config.FLOORWIDTH - 1) + self.ElevatorNumber * config.FLOORDISTANCE, i * config.FLOORHEIGHT)]) for i in range(self.FloorNumber)]
+        for elevator in self.Elevators:
+            elevatorRect = rectangle.Rectangle(100 + config.FLOORDISTANCE * elevator.getID(), config.SIZE[1] / (oldsize[1] / elevator.getRect().getY()), config.FLOORWIDTH, config.FLOORHEIGHT, True)
+            elevator.setRect(elevatorRect)
+            for floorlist in self.Floors:
+                for floor in floorlist:
+                    floorRect = rectangle.Rectangle(100 + config.FLOORDISTANCE * floor.getElevator().getID(), (config.FLOORNUMBER - floor.getFloorNumber() - 1) * config.FLOORHEIGHT, config.FLOORWIDTH, config.FLOORHEIGHT, True)
+                    floor.setRect(floorRect)
     def getFloors(self):        return self.Floors
     def getElevators(self):     return self.Elevators
     def getPassengers(self):    return self.Passengers
@@ -31,5 +42,6 @@ class Building:
         config.pygame.display.update()
     def simulate(self, Time):
         self.simulate_passengers(Time)
-        [i.simulate_elevator(self.Floors[i.getID()], self.Passengers) for i in self.Elevators]
+        #[i.simulate_elevator(self.Floors[i.getID()], self.Passengers) for i in self.Elevators]
+        [i.simulateSectorAlgorithm(self.Floors[i.getID()], self.Passengers, Time) for i in self.Elevators]
         self.draw()
