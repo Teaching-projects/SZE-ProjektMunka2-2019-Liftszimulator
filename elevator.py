@@ -115,7 +115,7 @@ class Elevator:
                         if self.Status == ["IDLE"] and not self.StopList: # az első beszálló célja felé(UP vagy DOWN beállítja a lift státuszát)
                             if self.CurrentFloor - passenger.getDestinationFloor() > 0:     self.Status = ["DOWN"]
                             else:                                                           self.Status = ["UP"]
-                        if self.CurrentPassengers == self.MaxPassenger: break
+                        if self.CurrentPassengers >= self.MaxPassenger: break
             else: # ha nem olyan szinte vagyunk ami a szektorunkba tartozik akkor a legközelibb szektorszintől kezdve a legtávolabbiig beállítjuk a stoplistát, így megáll az összes szektorszinten
                 if self.CurrentFloor < min(self.SectorList):
                     for i in self.SectorList:
