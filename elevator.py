@@ -29,7 +29,10 @@ class Elevator:
     def getRect(self):                      return self.Rect
     def setRect(self, Rect):                self.Rect = Rect
     def getPassengers(self):                return self.Passengers
+    def getMaxPassengers(self):             return self.MaxPassenger
     def move(self, y):                      self.Rect.move(y)
+    def getTime(self):                      return self.Time
+    def setTime(self, Time):                self.Time = Time
     def setSector(self):
         if config.FLOORNUMBER > config.ELEVATORNUMBER:
             if self.ID == 0:
@@ -73,7 +76,7 @@ class Elevator:
         temp = []
         [temp.append(str(i)) for i in self.StopList]
         messages[1] += " ".join(temp)
-        if len(self.getPassengers()) > 0: messages[2] += str(len(self.Passengers))
+        messages[2] += str(len(self.Passengers))
         [self.RenderedText.append(config.SMALLFONT.render(i, True, (0, 0, 255))) for i in messages]
     def drawInfo(self):
         if self.Data["StopList"] != self.StopList or self.Data["Status"] != self.Status or self.Data["CurrentPassengers"] != self.CurrentPassengers:
@@ -82,6 +85,19 @@ class Elevator:
         for i in self.RenderedText:
             config.SCREEN.blit(i, config.pygame.Rect(self.getRect().getRectangle().move(0, distance)))
             distance += 15
+    def addToStopList(self, passenger):
+        if passenger.getDestinationFloor() not in self.StopList and self.CurrentPassengers < self.MaxPassenger:
+            self.StopList.append(passenger.getDestinationFloor())
+            self.setCurrentPassengers()
+            if self.Status == ["IDLE"] and self.StopList[0] > self.CurrentFloor:    self.Status = ["UP"]
+            elif self.Status == ["IDLE"]:                                           self.Status = ["DOWN"]
+
+        LessThenCurrentFloor, MoreThenCurrentFloor = [], []
+        for i in self.StopList:
+            if i < self.CurrentFloor:   LessThenCurrentFloor.append(i)
+            else:                       MoreThenCurrentFloor.append(i)
+        if self.Status == ["DOWN"]: self.StopList = sorted(LessThenCurrentFloor, reverse = True)    + sorted(MoreThenCurrentFloor)
+        elif self.Status == ["UP"]: self.StopList = sorted(MoreThenCurrentFloor)                    + sorted(LessThenCurrentFloor, reverse = True)
     def simulateManualControlling(self, Floor, Passengers):
         if self.Status == ["IDLE"]:
             self.checkPassengers(Passengers)
