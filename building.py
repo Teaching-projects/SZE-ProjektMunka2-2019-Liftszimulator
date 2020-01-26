@@ -47,39 +47,43 @@ class Building:
         self.draw()"""
     def simulate(self, Time):
         self.simulate_passengers(Time)
-        maxStop = 1
+        maxStop = 3
+        inProgressFloors = set()
+        [inProgressFloors.add(passenger.getStartFloor()) for passenger in self.Passengers if passenger.getStatus() == "INPROGRESS"]
         waitingPassengers = []
         [waitingPassengers.append(passenger) for passenger in self.Passengers if passenger.getStatus() == "WAITING"]
         for passenger in waitingPassengers:
-            solutionValue = -1
-            solutionElevator = self.Elevators[0]
-            for elevator in self.Elevators:
-                if len(elevator.getStopList()) < maxStop:
-                    distance = abs(passenger.getStartFloor() - elevator.getCurrentFloor())
-                    passengerGoingUp = 0 < (passenger.getStartFloor() - elevator.getCurrentFloor())
-                    solutionValueForThisElevator = 1
-                    if elevator.getStatus() == ["IDLE"]:
-                        solutionValueForThisElevator = config.FLOORNUMBER + 1 - distance
-                    elif elevator.getStatus() == ["DOWN"]:
-                        if passengerGoingUp:
-                            solutionValueForThisElevator = 1
-                        elif passenger.getDestinationFloor() in elevator.getStopList():
-                            solutionValueForThisElevator = config.FLOORNUMBER + 2 - distance
-                        else:
+            if passenger.getStartFloor() not in inProgressFloors:
+                solutionValue = -1
+                solutionElevator = self.Elevators[0]
+                for elevator in self.Elevators:
+                    if len(elevator.getStopList()) < maxStop:
+                        distance = abs(passenger.getStartFloor() - elevator.getCurrentFloor())
+                        passengerGoingUp = 0 < (passenger.getStartFloor() - elevator.getCurrentFloor())
+                        solutionValueForThisElevator = 1
+                        if elevator.getStatus() == ["IDLE"]:
                             solutionValueForThisElevator = config.FLOORNUMBER + 1 - distance
-                    elif elevator.getStatus() == ["UP"]:
-                        if not passengerGoingUp:
-                            solutionValueForThisElevator = 1
-                        elif passenger.getDestinationFloor() in elevator.getStopList():
-                            solutionValueForThisElevator = config.FLOORNUMBER + 2 - distance
-                        else:
-                            solutionValueForThisElevator = config.FLOORNUMBER + 1 - distance
-                    if solutionValueForThisElevator > solutionValue:
-                        solutionValue = solutionValueForThisElevator
-                        solutionElevator = elevator
-            if solutionValue > 0:
-                passenger.setStatus("INPROGRESS")
-                solutionElevator.addToStopList(passenger)
+                        elif elevator.getStatus() == ["DOWN"]:
+                            if passengerGoingUp:
+                                solutionValueForThisElevator = 1
+                            elif passenger.getDestinationFloor() in elevator.getStopList():
+                                solutionValueForThisElevator = config.FLOORNUMBER + 2 - distance
+                            else:
+                                solutionValueForThisElevator = config.FLOORNUMBER + 1 - distance
+                        elif elevator.getStatus() == ["UP"]:
+                            if not passengerGoingUp:
+                                solutionValueForThisElevator = 1
+                            elif passenger.getDestinationFloor() in elevator.getStopList():
+                                solutionValueForThisElevator = config.FLOORNUMBER + 2 - distance
+                            else:
+                                solutionValueForThisElevator = config.FLOORNUMBER + 1 - distance
+                        if solutionValueForThisElevator > solutionValue:
+                            solutionValue = solutionValueForThisElevator
+                            solutionElevator = elevator
+                if solutionValue > 0:
+                    passenger.setStatus("INPROGRESS")
+                    inProgressFloors.add(passenger.getStartFloor())
+                    solutionElevator.addToStopList(passenger.getStartFloor())
         unitedStopLists = set()
         for elevator in self.Elevators:
             if elevator.getTime() > 0.0:
@@ -90,7 +94,7 @@ class Building:
                     if elevator.getStopList():
                         if elevator.getStopList()[0] > elevator.getCurrentFloor(): elevator.setStatus(["UP"])
                         else:                                                      elevator.setStatus(["DOWN"])
-                    else: elevator.setStatus(["FIN"])
+                    else: elevator.setStatus(["IDLE"])
             if elevator.getStatus() == ["UP"]:
                 elevator.move(-1)
                 for floor in self.Floors[elevator.getID()]:
@@ -107,7 +111,7 @@ class Building:
                         if passenger.getStatus() in ["INPROGRESS", "WAITING"] and elevator.getCurrentPassengers() < elevator.getMaxPassengers() and passenger.getStartFloor() == elevator.getCurrentFloor():
                             elevator.addPassenger(passenger)
                     for passenger in elevator.getPassengers():
-                        elevator.addToStopList(passenger)
+                        elevator.addToStopList(passenger.getDestinationFloor())
             elif elevator.getStatus() == ["DOWN"]:
                 elevator.move(1)
                 for floor in self.Floors[elevator.getID()]:
@@ -124,8 +128,7 @@ class Building:
                         if passenger.getStatus() in ["INPROGRESS", "WAITING"] and elevator.getCurrentPassengers() < elevator.getMaxPassengers() and passenger.getStartFloor() == elevator.getCurrentFloor():
                             elevator.addPassenger(passenger)
                     for passenger in elevator.getPassengers():
-                        elevator.addToStopList(passenger)
+                        elevator.addToStopList(passenger.getDestinationFloor())
             [unitedStopLists.add(stopListItem) for stopListItem in elevator.getStopList()]
         [passenger.setStatus("WAITING") for passenger in self.Passengers if passenger.getStatus() == "INPROGRESS" and passenger.getStartFloor() not in list(unitedStopLists)]
-
         self.draw()
