@@ -4,9 +4,9 @@ pygame.init()
 pygame.display.set_caption('Elevator simulator')
 
 SIZE            = [1600, 900]
-FLOORNUMBER     = 20
+FLOORNUMBER     = 15
 ELEVATORNUMBER  = 6
-PASSENGERNUMBER = 200
+PASSENGERNUMBER = 50
 FPS             = 120
 FLOORHEIGHT     = SIZE[1] / FLOORNUMBER
 FLOORWIDTH      = 90

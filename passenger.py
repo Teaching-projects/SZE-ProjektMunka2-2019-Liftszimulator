@@ -12,7 +12,7 @@ class Passenger:
     def getWaitTime(self):                  return self.WaitTime
     def getFinishTime(self):                return self.FinishTime
     def increaseTime(self, Time):
-        if self.Status == "WAITING":
+        if self.Status in ["WAITING", "INPROGRESS"]:
             self.WaitTime += Time
             self.FinishTime += Time
         elif self.Status == "INLIFT":

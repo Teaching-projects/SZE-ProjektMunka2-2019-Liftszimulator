@@ -46,7 +46,8 @@ class Building:
         [i.simulateSectorAlgorithm(self.Floors[i.getID()], self.Passengers, Time) for i in self.Elevators]
         self.draw()"""
     def simulate(self, Time):
-        maxStop = 3
+        self.simulate_passengers(Time)
+        maxStop = 1
         waitingPassengers = []
         [waitingPassengers.append(passenger) for passenger in self.Passengers if passenger.getStatus() == "WAITING"]
         for passenger in waitingPassengers:
@@ -79,45 +80,52 @@ class Building:
             if solutionValue > 0:
                 passenger.setStatus("INPROGRESS")
                 solutionElevator.addToStopList(passenger)
+        unitedStopLists = set()
         for elevator in self.Elevators:
             if elevator.getTime() > 0.0:
-                elevator.setStatus(["IDLE"])
+                elevator.setStatus(["WAITING: " + str(elevator.getTime())])
                 elevator.setTime(elevator.getTime() - Time)
                 if elevator.getTime() <= 0.0:
                     elevator.setTime(0.0)
                     if elevator.getStopList():
                         if elevator.getStopList()[0] > elevator.getCurrentFloor(): elevator.setStatus(["UP"])
                         else:                                                      elevator.setStatus(["DOWN"])
+                    else: elevator.setStatus(["FIN"])
             if elevator.getStatus() == ["UP"]:
                 elevator.move(-1)
-            for floor in self.Floors[elevator.getID()]:
-                if floor.getRect().getRectangle().contains(elevator.getRect().getRectangle()):
-                    elevator.CurrentFloor = floor.getFloorNumber()
-            if elevator.getStopList() and elevator.getCurrentFloor() == elevator.getStopList()[0]:
-                elevator.setStatus(["IDLE"])
-                elevator.setTime(3000)
-                elevator.StopList.pop(0)
-                for passenger in self.Passengers:
-                    if elevator.getCurrentPassengers() < elevator.getMaxPassengers() and passenger.getStartFloor() == elevator.getCurrentFloor():
-                        elevator.addPassenger(passenger)
+                for floor in self.Floors[elevator.getID()]:
+                    if floor.getRect().getRectangle().contains(elevator.getRect().getRectangle()):
+                        elevator.setCurrentFloor(floor.getFloorNumber())
+                if elevator.getStopList() and elevator.getCurrentFloor() == elevator.getStopList()[0]:
+                    elevator.setStatus(["IDLE"])
+                    elevator.setTime(3000)
+                    elevator.StopList.pop(0)
+                    for passenger in elevator.getPassengers():
+                        if passenger.getDestinationFloor() == elevator.getCurrentFloor():
+                            elevator.deletePassenger(passenger)
+                    for passenger in self.Passengers:
+                        if passenger.getStatus() in ["INPROGRESS", "WAITING"] and elevator.getCurrentPassengers() < elevator.getMaxPassengers() and passenger.getStartFloor() == elevator.getCurrentFloor():
+                            elevator.addPassenger(passenger)
+                    for passenger in elevator.getPassengers():
                         elevator.addToStopList(passenger)
-                for passenger in elevator.getPassengers():
-                    if passenger.getDestinationFloor() == elevator.getCurrentFloor():
-                        elevator.deletePassenger(passenger)
             elif elevator.getStatus() == ["DOWN"]:
                 elevator.move(1)
-            for floor in self.Floors[elevator.getID()]:
-                if floor.getRect().getRectangle().contains(elevator.getRect().getRectangle()):
-                    elevator.CurrentFloor = floor.getFloorNumber()
-            if elevator.getStopList() and elevator.getCurrentFloor() == elevator.getStopList()[0]:
-                elevator.setStatus(["IDLE"])
-                elevator.setTime(3000)
-                elevator.StopList.pop(0)
-                for passenger in self.Passengers:
-                    if elevator.getCurrentPassengers() < elevator.getMaxPassengers() and passenger.getStartFloor() == elevator.getCurrentFloor():
-                        elevator.addPassenger(passenger)
+                for floor in self.Floors[elevator.getID()]:
+                    if floor.getRect().getRectangle().contains(elevator.getRect().getRectangle()):
+                        elevator.setCurrentFloor(floor.getFloorNumber())
+                if elevator.getStopList() and elevator.getCurrentFloor() == elevator.getStopList()[0]:
+                    elevator.setStatus(["IDLE"])
+                    elevator.setTime(3000)
+                    elevator.StopList.pop(0)
+                    for passenger in elevator.getPassengers():
+                        if passenger.getDestinationFloor() == elevator.getCurrentFloor():
+                            elevator.deletePassenger(passenger)
+                    for passenger in self.Passengers:
+                        if passenger.getStatus() in ["INPROGRESS", "WAITING"] and elevator.getCurrentPassengers() < elevator.getMaxPassengers() and passenger.getStartFloor() == elevator.getCurrentFloor():
+                            elevator.addPassenger(passenger)
+                    for passenger in elevator.getPassengers():
                         elevator.addToStopList(passenger)
-                for passenger in elevator.getPassengers():
-                    if passenger.getDestinationFloor() == elevator.getCurrentFloor():
-                        elevator.deletePassenger(passenger)
+            [unitedStopLists.add(stopListItem) for stopListItem in elevator.getStopList()]
+        [passenger.setStatus("WAITING") for passenger in self.Passengers if passenger.getStatus() == "INPROGRESS" and passenger.getStartFloor() not in list(unitedStopLists)]
+
         self.draw()
