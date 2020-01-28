@@ -12,7 +12,7 @@ Base = Building(config.FLOORNUMBER, config.ELEVATORNUMBER)
 print(config.ALGORITHM)
 while not DONE:
     TICK = config.CLOCK.tick(config.FPS)
-    if config.ALGORITHM > 0:
+    if config.ALGORITHM < 3:
         Base.simulate(TICK, config.ALGORITHM)
     else:
         Base.simulate(TICK, config.ALGORITHM)

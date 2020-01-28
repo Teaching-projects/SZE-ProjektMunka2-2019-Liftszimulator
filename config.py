@@ -78,8 +78,7 @@ def menu():
                     TIMEPASSENGERPAIRS[spawnSecond] = 1
         if AlapUtasSzam.get()   and isInt(AlapUtasSzam.get()):
             BASEPASSENGERS  = int(AlapUtasSzam.get())
-        if choicesValue.get()   and isInt(choicesValue.get()):
-            ALGORITHM       =   int(choicesValue.get())
+        ALGORITHM       =   int(choicesValue.get())
         root.destroy()
         SCREEN          = pygame.display.set_mode(SIZE)
     root = tk.Tk()
@@ -102,7 +101,7 @@ def menu():
     Idokoz.grid(        row = 3, column = 1)
     AlapUtasSzam.grid(  row = 4, column = 1)
     RandomSeed.grid(    row = 5, column = 1)
-    choicesValue = tk.IntVar(0)
+    choicesValue = tk.IntVar()
     choices = [
         ("Algorithm 1 - Nearest Car"),
         ("Algorithm 2 - Sector"),
@@ -113,13 +112,15 @@ def menu():
             text    =   "Select an algorithm: ",
             justify =   tk.LEFT,
             padx    =   20).grid(row = 6, sticky = tk.W)
-    for val, choices in enumerate(choices):
+    for val, choicess in enumerate(choices):
         tk.Radiobutton(root, 
-                    text        =   choices,
+                    text        =   choicess,
                     padx        =   20,
                     variable    =   choicesValue,
-                    value       =   val).grid(row = 7 + val, sticky = tk.W)
+                    value       =   val,
+                    indicator = 0, 
+                    background = "light blue").grid(row = 7 + val, sticky = tk.W)
     tk.Button(root,
             text    =   "Submit",
-            command =   getInput).grid(row = 13, sticky = tk.W)
+            command =   getInput).grid(row = 11, sticky = tk.W)
     root.mainloop()

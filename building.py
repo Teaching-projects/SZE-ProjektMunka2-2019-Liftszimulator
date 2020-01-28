@@ -86,11 +86,11 @@ class Building:
         config.pygame.display.update()
     def simulate(self, Time, Algorithm):
         self.simulatePassengers(Time)
-        if Algorithm == 3:
+        if Algorithm == 0:
             self.simulateNearestCar(Time)
-        elif Algorithm == 2:
-            [i.simulateSectorAlgorithm(self.Floors[i.getID()], self.Passengers, Time) for i in self.Elevators]
         elif Algorithm == 1:
+            [i.simulateSectorAlgorithm(self.Floors[i.getID()], self.Passengers, Time) for i in self.Elevators]
+        elif Algorithm == 2:
             pass
         self.draw()
     def simulateNearestCar(self, Time):
