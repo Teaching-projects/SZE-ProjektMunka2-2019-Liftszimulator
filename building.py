@@ -41,14 +41,11 @@ class Building:
     def resizePressedButtons(self):
         self.PressedButtonsRect.clear()
         tempRectUp      = config.pygame.Rect(30, (config.FLOORNUMBER - 1) * config.FLOORHEIGHT,                          70, config.FLOORHEIGHT / 2)
-        tempRectDown    = config.pygame.Rect(30, (config.FLOORNUMBER - 1) * config.FLOORHEIGHT + config.FLOORHEIGHT / 2 + 1, 70, config.FLOORHEIGHT / 2)
+        tempRectDown    = config.pygame.Rect(30, (config.FLOORNUMBER - 1) * config.FLOORHEIGHT + config.FLOORHEIGHT / 2, 70, config.FLOORHEIGHT / 2)
         for floor in range(self.FloorNumber):
             self.PressedButtonsRect.append([tempRectUp, tempRectDown])
             tempRectUp = tempRectUp.move(0, -1 * config.FLOORHEIGHT)
             tempRectDown = tempRectDown.move(0, -1 * config.FLOORHEIGHT)
-        for floor in self.PressedButtonsRect:
-            config.pygame.draw.rect(config.SCREEN, config.RED, floor[0])
-            config.pygame.draw.rect(config.SCREEN, config.BLUE, floor[1])
     def resizeFloorNumbers(self):
         self.FloorNumberRects.clear()
         tempRect = config.pygame.Rect(0, (config.FLOORNUMBER - 1) * config.FLOORHEIGHT + config.FLOORHEIGHT / 3, 30, config.FLOORHEIGHT)
@@ -58,9 +55,21 @@ class Building:
             tempRect = tempRect.move(0, -1 * config.FLOORHEIGHT)
     def drawFloorNumbers(self):     [config.SCREEN.blit(text, rect) for rect, text in zip(self.FloorNumberRects, self.RenderedText)]
     def drawPressedButtons(self):
-        for floor in self.PressedButtonsRect:
-            config.pygame.draw.rect(config.SCREEN, config.RED, floor[0])
-            config.pygame.draw.rect(config.SCREEN, config.BLUE, floor[1])
+        pressedUp, pressedDown = set(), set()
+        for passenger in self.Passengers:
+            if passenger.getStatus() in ["WAITING", "INPROGRESS"]:
+                if passenger.getStartFloor() - passenger.getDestinationFloor() < 0:
+                    pressedUp.add(passenger.getStartFloor())
+                else:
+                    pressedDown.add(passenger.getStartFloor())
+        for floor in range(self.FloorNumber):
+            upColor, downColor = config.BLUE, config.BLUE
+            if floor in pressedUp:
+                upColor = config.RED
+            if floor in pressedDown:
+                upColor = config.RED
+            config.pygame.draw.rect(config.SCREEN, upColor, self.PressedButtonsRect[floor][0])
+            config.pygame.draw.rect(config.SCREEN, downColor, self.PressedButtonsRect[floor][1])
     def getFloors(self):        return self.Floors
     def getElevators(self):     return self.Elevators
     def getPassengers(self):    return self.Passengers
