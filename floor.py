@@ -4,9 +4,12 @@ import elevator
 
 class Floor:
     def __init__(self, Elevator, FloorNumber, FLOORHEIGHT):
-        self.Rect                   = rectangle.Rectangle(100 + 100 * Elevator.getID(), FloorNumber * FLOORHEIGHT, 90, FLOORHEIGHT, True)
+        self.Rect                   = rectangle.Rectangle(100 + config.FLOORDISTANCE * Elevator.getID(), FloorNumber * FLOORHEIGHT, config.FLOORWIDTH, FLOORHEIGHT, True)
         self.FloorNumber            = config.FLOORNUMBER - FloorNumber - 1
-        self.Elevator               = elevator.Elevator(self.FloorNumber)
+        self.Elevator               = Elevator
     def getRect(self):              return self.Rect
+    def setRect(self, Rect):        self.Rect = Rect
     def getFloorNumber(self):       return self.FloorNumber
-    def getElevatorNumber(self):    return self.ElevatorNumber
+    def getElevator(self):          return self.Elevator
+
+
