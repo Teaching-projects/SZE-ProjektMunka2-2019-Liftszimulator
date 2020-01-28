@@ -16,7 +16,7 @@ class Elevator:
         self.RenderedText       = []
         self.SectorList         = []
         self.Time               = 0.0
-        self.renderText()
+        self.renderText(0)
         self.setSector()
     def getID(self):                        return self.ID
     def getCurrentPassengers(self):         return self.CurrentPassengers
@@ -70,18 +70,21 @@ class Elevator:
         self.Data["Status"]             = self.Status
         self.Data["CurrentPassengers"]  = self.CurrentPassengers
     def getData(self):                      return self.Data
-    def renderText(self):
+    def renderText(self, Algorithm):
         self.refreshData()
         self.RenderedText.clear()
         messages = [str(self.getCurrentFloor()) + " " + self.getStatus()[0], "", "Passengers: "]
         temp = []
-        [temp.append(str(i)) for i in self.StopList]
+        if Algorithm != 3:
+            [temp.append(str(i)) for i in self.StopList]
+        else:
+            [temp.append(str(passenger.getDestinationFloor())) for passenger in self.Passengers if passenger.getDestinationFloor() in temp]
         messages[1] += " ".join(temp)
         messages[2] += str(len(self.Passengers))
         [self.RenderedText.append(config.SMALLFONT.render(i, True, config.BLUE)) for i in messages]
-    def drawInfo(self):
+    def drawInfo(self, Algorithm):
         if self.Data["CurrentFloor"] != self.CurrentFloor or self.Data["StopList"] != self.StopList or self.Data["Status"] != self.Status or self.Data["CurrentPassengers"] != self.CurrentPassengers:
-            self.renderText()
+            self.renderText(Algorithm)
         distance = 0
         for i in self.RenderedText:
             config.SCREEN.blit(i, config.pygame.Rect(self.getRect().getRectangle().move(0, distance)))
@@ -115,11 +118,13 @@ class Elevator:
     def simulateSectorAlgorithm(self, Floor, Passengers, Time):
         if self.Time > 0.0:
             self.Time -= Time
-            self.Status = ["WAIT: " + str(Time)]
+            self.Status = ["WAIT: " + str(self.Time)]
             if self.Time <= 0.0:
                 self.Status = ["IDLE"]
                 self.Time = 0.0
         if self.Status == ["IDLE"]:
+            for passenger in self.Passengers: # Ha a passengerek közül valakinek ez a célállomása akkor kiszáll
+                if passenger.getDestinationFloor() == self.CurrentFloor:        self.deletePassenger(passenger)
             floorsWithWaiters = []
             for passenger in Passengers:
                 if passenger.getStatus() == "WAITING" and passenger.getStartFloor() in self.SectorList and passenger.getStartFloor() not in floorsWithWaiters:
@@ -146,6 +151,8 @@ class Elevator:
                 if i.getDestinationFloor() not in self.StopList:
                     self.StopList.append(i.getDestinationFloor())
             if self.Status == ["IDLE"] and self.StopList: # Ha nem állítódott be irány akkor azt most állítjuk be
+                for passenger in self.Passengers:
+                    if passenger.getDestinationFloor() == self.CurrentFloor:        self.deletePassenger(passenger)
                 if self.CurrentFloor - self.StopList[0] > 0:    self.Status = ["DOWN"]
                 else:                                           self.Status = ["UP"]
             if self.StopList and self.Status == ["DOWN"]:

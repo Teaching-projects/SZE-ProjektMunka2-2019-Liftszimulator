@@ -17,7 +17,18 @@ class Building:
         self.RenderedText       = []
         self.FloorNumberRects   = []
         self.PressedButtonsRect = []
+        self.SavedButtonsUp     = []
+        self.SavedButtonsDown   = []
+        self.RenderedTextUp     = []
+        self.RenderedTextDown   = []
         self.addPassenger(config.BASEPASSENGERS)
+        pressedUpDestination, pressedDownDestination = [], []
+        for i in range(self.FloorNumber):
+            self.RenderedTextUp.append(config.SMALLFONT.render("tempText", True, config.BLUE))
+            self.RenderedTextDown.append(config.SMALLFONT.render("tempText", True, config.BLUE))
+        for i in range(self.FloorNumber):
+            self.SavedButtonsUp.append([set(),set()])
+            self.SavedButtonsDown.append([set(),set()])
         for i in range(ElevatorNumber):
             self.Elevators.append(Elevator(i, config.FLOORHEIGHT))
             self.Floors.append([])
@@ -56,33 +67,53 @@ class Building:
     def drawFloorNumbers(self):     [config.SCREEN.blit(text, rect) for rect, text in zip(self.FloorNumberRects, self.RenderedText)]
     def drawPressedButtons(self):
         pressedUp, pressedDown = set(), set()
+        pressedUpDestination, pressedDownDestination = [], []
+        for i in range(self.FloorNumber):
+            pressedUpDestination.append([])
+            pressedDownDestination.append([])
         for passenger in self.Passengers:
             if passenger.getStatus() in ["WAITING", "INPROGRESS"]:
                 if passenger.getStartFloor() - passenger.getDestinationFloor() < 0:
                     pressedUp.add(passenger.getStartFloor())
+                    pressedUpDestination[passenger.getStartFloor()].append(passenger.getDestinationFloor())
                 else:
                     pressedDown.add(passenger.getStartFloor())
-        for floor in range(self.FloorNumber):
+                    pressedDownDestination[passenger.getStartFloor()].append(passenger.getDestinationFloor())
+        for floorNumber in range(self.FloorNumber):
+            if pressedUpDestination[floorNumber] != self.SavedButtonsUp[floorNumber]:
+                tempText = str(len(pressedUpDestination[floorNumber])) + " -"
+                for destination in set(pressedUpDestination[floorNumber]):
+                    tempText += " " + str(destination)
+                self.RenderedTextUp[floorNumber] = config.SMALLFONT.render(tempText, True, config.BLUE)
+            if pressedDownDestination[floorNumber] != self.SavedButtonsDown[floorNumber]:
+                tempText = str(len(pressedDownDestination[floorNumber])) + " -"
+                for destination in set(pressedDownDestination[floorNumber]):
+                    tempText += " " + str(destination)
+                self.RenderedTextDown[floorNumber] = config.SMALLFONT.render(tempText, True, config.BLUE)
+        for floorNumber in range(self.FloorNumber):
             upColor, downColor = config.BLUE, config.BLUE
-            if floor in pressedUp:
+            if floorNumber in pressedUp:
                 upColor = config.RED
-            if floor in pressedDown:
-                upColor = config.RED
-            config.pygame.draw.rect(config.SCREEN, upColor, self.PressedButtonsRect[floor][0])
-            config.pygame.draw.rect(config.SCREEN, downColor, self.PressedButtonsRect[floor][1])
+            if floorNumber in pressedDown:
+                downColor = config.RED
+            config.pygame.draw.rect(config.SCREEN, upColor,     self.PressedButtonsRect[floorNumber][0])
+            config.pygame.draw.rect(config.SCREEN, downColor,   self.PressedButtonsRect[floorNumber][1])
+        for floorNumber in range(self.FloorNumber):
+            config.SCREEN.blit(self.RenderedTextUp[floorNumber],    self.PressedButtonsRect[floorNumber][0])
+            config.SCREEN.blit(self.RenderedTextDown[floorNumber],  self.PressedButtonsRect[floorNumber][1])
     def getFloors(self):        return self.Floors
     def getElevators(self):     return self.Elevators
     def getPassengers(self):    return self.Passengers
     def addPassenger(self, Passengernumber):    [self.Passengers.append(Passenger((random.sample((range(self.FloorNumber - 1)), 2)))) for i in range(Passengernumber)]
     def simulatePassengers(self, Time):         [i.increaseTime(Time) for i in self.Passengers]
-    def draw(self):
+    def draw(self, Algorithm):
         config.SCREEN.fill(config.ORANGE)
         self.drawFloorNumbers()
         self.drawPressedButtons()
-        [config.pygame.draw.rect(config.SCREEN, config.RED,   i.getRect().getRectangle()) for j in range(self.ElevatorNumber) for i in self.Floors[j]]
-        [config.pygame.draw.line(config.SCREEN, config.GREEN,  i[0], i[1], 1) for i in self.Lines]
-        [config.pygame.draw.rect(config.SCREEN, config.GRAY, i.getRect().getRectangle()) for i in self.Elevators]
-        [i.drawInfo() for i in self.Elevators]
+        [config.pygame.draw.rect(config.SCREEN, config.RED,     i.getRect().getRectangle()) for j in range(self.ElevatorNumber) for i in self.Floors[j]]
+        [config.pygame.draw.line(config.SCREEN, config.GREEN,   i[0], i[1], 1) for i in self.Lines]
+        [config.pygame.draw.rect(config.SCREEN, config.GRAY,    i.getRect().getRectangle()) for i in self.Elevators]
+        [i.drawInfo(Algorithm) for i in self.Elevators]
         config.pygame.display.update()
     def simulate(self, Time, Algorithm):
         self.simulatePassengers(Time)
@@ -92,7 +123,9 @@ class Building:
             [i.simulateSectorAlgorithm(self.Floors[i.getID()], self.Passengers, Time) for i in self.Elevators]
         elif Algorithm == 2:
             pass
-        self.draw()
+        elif Algorithm == 3:
+            [i.simulateManualControlling(self.Floors[i.getID()], self.Passengers) for i in self.Elevators]
+        self.draw(Algorithm)
     def simulateNearestCar(self, Time):
         maxStop = 3
         inProgressFloors = set()
