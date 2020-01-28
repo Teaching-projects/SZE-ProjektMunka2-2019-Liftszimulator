@@ -78,7 +78,7 @@ class Elevator:
         [temp.append(str(i)) for i in self.StopList]
         messages[1] += " ".join(temp)
         messages[2] += str(len(self.Passengers))
-        [self.RenderedText.append(config.SMALLFONT.render(i, True, (0, 0, 255))) for i in messages]
+        [self.RenderedText.append(config.SMALLFONT.render(i, True, config.BLUE)) for i in messages]
     def drawInfo(self):
         if self.Data["CurrentFloor"] != self.CurrentFloor or self.Data["StopList"] != self.StopList or self.Data["Status"] != self.Status or self.Data["CurrentPassengers"] != self.CurrentPassengers:
             self.renderText()
@@ -115,6 +115,7 @@ class Elevator:
     def simulateSectorAlgorithm(self, Floor, Passengers, Time):
         if self.Time > 0.0:
             self.Time -= Time
+            self.Status = ["WAIT: " + str(Time)]
             if self.Time <= 0.0:
                 self.Status = ["IDLE"]
                 self.Time = 0.0
@@ -171,7 +172,7 @@ class Elevator:
             if self.CurrentFloor == self.StopList[0]:
                 for passenger in self.Passengers: # Ha a passengerek közül valakinek ez a célállomása akkor kiszáll
                     if passenger.getDestinationFloor() == self.CurrentFloor:        self.deletePassenger(passenger)
-                self.setStatus(["WAIT"])
+                self.setStatus(["WAIT: 3000"])
                 self.Time = 3000
                 self.StopList.pop(0)
         if self.Status == ["DOWN"]:
