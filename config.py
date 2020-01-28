@@ -15,6 +15,9 @@ FLOORHEIGHT     = SIZE[1] / FLOORNUMBER
 SEED            = random.randint(0, 2 ** 10)
 ALGORITHM       = 3
 TIMEINTERVALL   = 120
+FLOORWIDTH      = 90
+FLOORDISTANCE   = 100
+
 CLOCK           = pygame.time.Clock()
 SCREEN          = pygame.display.set_mode(SIZE)
 SMALLFONT       = pygame.font.SysFont(None, 16)
