@@ -14,12 +14,18 @@ class Building:
         self.Passengers         = []
         self.Floors             = []
         self.Lines              = []
+        self.RenderedText       = []
+        self.FloorNumberRects   = []
+        self.PressedButtonsRect = []
         self.addPassenger(config.BASEPASSENGERS)
         for i in range(ElevatorNumber):
             self.Elevators.append(Elevator(i, config.FLOORHEIGHT))
             self.Floors.append([])
             [self.Floors[i].append(Floor(self.Elevators[-1], j, config.FLOORHEIGHT)) for j in range(FloorNumber)]
         [self.Lines.append([(100, i * config.FLOORHEIGHT), ((config.FLOORWIDTH - 1) + self.ElevatorNumber * config.FLOORDISTANCE, i * config.FLOORHEIGHT)]) for i in range(FloorNumber)]
+        [self.RenderedText.append(config.BIGFONT.render(str(i), True, config.BLUE)) for i in range(FloorNumber)]
+        self.resizeFloorNumbers()
+        self.resizePressedButtons()
     def resize(self, oldsize):
         self.Lines.clear()
         [self.Lines.append([(100, i * config.FLOORHEIGHT), ((config.FLOORWIDTH - 1) + self.ElevatorNumber * config.FLOORDISTANCE, i * config.FLOORHEIGHT)]) for i in range(self.FloorNumber)]
@@ -30,16 +36,43 @@ class Building:
                 for floor in floorlist:
                     floorRect = Rectangle(100 + config.FLOORDISTANCE * floor.getElevator().getID(), (config.FLOORNUMBER - floor.getFloorNumber() - 1) * config.FLOORHEIGHT, config.FLOORWIDTH, config.FLOORHEIGHT, True)
                     floor.setRect(floorRect)
+        self.resizeFloorNumbers()
+        self.resizePressedButtons()
+    def resizePressedButtons(self):
+        self.PressedButtonsRect.clear()
+        tempRectUp      = config.pygame.Rect(30, (config.FLOORNUMBER - 1) * config.FLOORHEIGHT,                          70, config.FLOORHEIGHT / 2)
+        tempRectDown    = config.pygame.Rect(30, (config.FLOORNUMBER - 1) * config.FLOORHEIGHT + config.FLOORHEIGHT / 2 + 1, 70, config.FLOORHEIGHT / 2)
+        for floor in range(self.FloorNumber):
+            self.PressedButtonsRect.append([tempRectUp, tempRectDown])
+            tempRectUp = tempRectUp.move(0, -1 * config.FLOORHEIGHT)
+            tempRectDown = tempRectDown.move(0, -1 * config.FLOORHEIGHT)
+        for floor in self.PressedButtonsRect:
+            config.pygame.draw.rect(config.SCREEN, config.RED, floor[0])
+            config.pygame.draw.rect(config.SCREEN, config.BLUE, floor[1])
+    def resizeFloorNumbers(self):
+        self.FloorNumberRects.clear()
+        tempRect = config.pygame.Rect(0, (config.FLOORNUMBER - 1) * config.FLOORHEIGHT + config.FLOORHEIGHT / 3, 30, config.FLOORHEIGHT)
+        for text in self.RenderedText:
+            self.FloorNumberRects.append(tempRect)
+            config.SCREEN.blit(text, config.pygame.Rect(tempRect))
+            tempRect = tempRect.move(0, -1 * config.FLOORHEIGHT)
+    def drawFloorNumbers(self):     [config.SCREEN.blit(text, rect) for rect, text in zip(self.FloorNumberRects, self.RenderedText)]
+    def drawPressedButtons(self):
+        for floor in self.PressedButtonsRect:
+            config.pygame.draw.rect(config.SCREEN, config.RED, floor[0])
+            config.pygame.draw.rect(config.SCREEN, config.BLUE, floor[1])
     def getFloors(self):        return self.Floors
     def getElevators(self):     return self.Elevators
     def getPassengers(self):    return self.Passengers
     def addPassenger(self, Passengernumber):    [self.Passengers.append(Passenger((random.sample((range(self.FloorNumber - 1)), 2)))) for i in range(Passengernumber)]
     def simulatePassengers(self, Time):         [i.increaseTime(Time) for i in self.Passengers]
     def draw(self):
-        config.SCREEN.fill(config.GRAY)
+        config.SCREEN.fill(config.ORANGE)
+        self.drawFloorNumbers()
+        self.drawPressedButtons()
         [config.pygame.draw.rect(config.SCREEN, config.RED,   i.getRect().getRectangle()) for j in range(self.ElevatorNumber) for i in self.Floors[j]]
-        [config.pygame.draw.line(config.SCREEN, config.BLUE,  i[0], i[1], 1) for i in self.Lines]
-        [config.pygame.draw.rect(config.SCREEN, config.BLACK, i.getRect().getRectangle()) for i in self.Elevators]
+        [config.pygame.draw.line(config.SCREEN, config.GREEN,  i[0], i[1], 1) for i in self.Lines]
+        [config.pygame.draw.rect(config.SCREEN, config.GRAY, i.getRect().getRectangle()) for i in self.Elevators]
         [i.drawInfo() for i in self.Elevators]
         config.pygame.display.update()
     def simulate(self, Time, Algorithm):
