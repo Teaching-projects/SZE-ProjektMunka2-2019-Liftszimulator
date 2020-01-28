@@ -1,10 +1,10 @@
-import rectangle
+from rectangle import Rectangle
 import config
 import elevator
 
 class Floor:
     def __init__(self, Elevator, FloorNumber, FLOORHEIGHT):
-        self.Rect                   = rectangle.Rectangle(100 + config.FLOORDISTANCE * Elevator.getID(), FloorNumber * FLOORHEIGHT, config.FLOORWIDTH, FLOORHEIGHT, True)
+        self.Rect                   = Rectangle(100 + config.FLOORDISTANCE * Elevator.getID(), FloorNumber * FLOORHEIGHT, config.FLOORWIDTH, FLOORHEIGHT, True)
         self.FloorNumber            = config.FLOORNUMBER - FloorNumber - 1
         self.Elevator               = Elevator
     def getRect(self):              return self.Rect

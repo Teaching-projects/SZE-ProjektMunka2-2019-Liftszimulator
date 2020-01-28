@@ -19,7 +19,7 @@ FLOORWIDTH      = 90
 FLOORDISTANCE   = 100
 
 CLOCK           = pygame.time.Clock()
-SCREEN          = pygame.display.set_mode(SIZE)
+SCREEN          = None
 SMALLFONT       = pygame.font.SysFont(None, 16)
 TIMEPASSENGERPAIRS = dict()
 
@@ -28,6 +28,7 @@ RED   = (255,   0,   0)
 GREEN = (  0, 255,   0)
 BLUE  = (  0,   0, 255)
 WHITE = (255, 255, 255)
+GRAY  = (128, 128, 128)
 
 def isInt(value):
     try:
@@ -45,6 +46,8 @@ def menu():
         global TIMEINTERVALL
         global BASEPASSENGERS
         global ALGORITHM
+        global TIMEPASSENGERPAIRS
+        global SCREEN
         if EmeletSzam.get()     and isInt(EmeletSzam.get()):
             FLOORNUMBER     =   int(EmeletSzam.get())
             FLOORHEIGHT     =   SIZE[1] / FLOORNUMBER
@@ -58,18 +61,19 @@ def menu():
         if Idokoz.get()         and isInt(Idokoz.get()):
             TIMEINTERVALL   =   int(Idokoz.get())
             for i in range(PASSENGERNUMBER):
-                spawnSecond = random.randint(0, TIMEINTERVALL)
+                spawnSecond = random.randint(1, TIMEINTERVALL)
                 if spawnSecond in TIMEPASSENGERPAIRS:
                     TIMEPASSENGERPAIRS[spawnSecond] = TIMEPASSENGERPAIRS[spawnSecond] + 1
                 else:
                     TIMEPASSENGERPAIRS[spawnSecond] = 1
-        print(TIMEPASSENGERPAIRS)
         if AlapUtasSzam.get()   and isInt(AlapUtasSzam.get()):
             BASEPASSENGERS  = int(AlapUtasSzam.get())
         if choicesValue.get()   and isInt(choicesValue.get()):
             ALGORITHM       =   int(choicesValue.get())
         root.destroy()
+        SCREEN          = pygame.display.set_mode(SIZE)
     root = tk.Tk()
+    root.title('Data input')
     tk.Label(root, text = "Floor number:").grid(            row = 0, sticky = tk.W)
     tk.Label(root, text = "Elevator number:").grid(         row = 1, sticky = tk.W)
     tk.Label(root, text = "Passenger number:").grid(        row = 2, sticky = tk.W)

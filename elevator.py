@@ -1,4 +1,4 @@
-import rectangle
+from rectangle import Rectangle
 import config
 from decimal import Decimal
 
@@ -10,7 +10,7 @@ class Elevator:
         self.CurrentFloor       = 0
         self.StopList           = []
         self.Status             = ["IDLE"]
-        self.Rect               = rectangle.Rectangle(100 + config.FLOORWIDTH * self.ID, config.SIZE[1] - FloorHeight, config.FLOORWIDTH, FloorHeight, True)
+        self.Rect               = Rectangle(100 + config.FLOORWIDTH * self.ID, config.SIZE[1] - FloorHeight, config.FLOORWIDTH, FloorHeight, True)
         self.Passengers         = []
         self.Data               = dict()
         self.RenderedText       = []
