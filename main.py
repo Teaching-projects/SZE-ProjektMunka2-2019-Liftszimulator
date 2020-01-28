@@ -3,12 +3,24 @@ import config
 import pygame
 import csv
 
-DONE = False
+DONE     = False
+TIME     = 0
+SECONDS  = 0
 
+config.menu()
 Base = building.Building(config.FLOORNUMBER, config.ELEVATORNUMBER)
-Base.addPassenger(config.PASSENGERNUMBER)
 
 while not DONE:
+    TICK = config.CLOCK.tick(config.FPS)
+    Base.simulate(TICK)
+    TIME += TICK
+    if TIME > 1000:
+        TIME = 0
+        SECONDS += 1
+        print(SECONDS)
+        if SECONDS in config.TIMEPASSENGERPAIRS:
+            Base.addPassenger(config.TIMEPASSENGERPAIRS[SECONDS])
+            del config.TIMEPASSENGERPAIRS[SECONDS]
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             DONE = True
@@ -23,7 +35,6 @@ while not DONE:
             Base.resize(old_size)
             config.SCREEN.blit(old_surface_saved, (0,0))
             del old_surface_saved
-    Base.simulate(config.CLOCK.tick(config.FPS))
     """
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:

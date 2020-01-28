@@ -1,9 +1,10 @@
-import random
 import elevator
 import passenger
 import floor
 import config
+import random
 import rectangle
+
 
 class Building:
     def __init__(self, FloorNumber, ElevatorNumber):
@@ -13,6 +14,9 @@ class Building:
         self.Passengers         = []
         self.Floors             = []
         self.Lines              = []
+        for i in range(10):
+            print(config.random.randint(1, 20))
+        self.addPassenger(config.BASEPASSENGERS)
         for i in range(ElevatorNumber):
             self.Elevators.append(elevator.Elevator(i, config.FLOORHEIGHT))
             self.Floors.append([])
