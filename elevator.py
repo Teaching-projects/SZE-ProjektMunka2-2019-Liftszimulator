@@ -65,6 +65,7 @@ class Elevator:
                 self.addPassenger(i)
     def refreshData(self):
         self.Data.clear()
+        self.Data["CurrentFloor"]       = self.CurrentFloor
         self.Data["StopList"]           = self.StopList
         self.Data["Status"]             = self.Status
         self.Data["CurrentPassengers"]  = self.CurrentPassengers
@@ -72,14 +73,14 @@ class Elevator:
     def renderText(self):
         self.refreshData()
         self.RenderedText.clear()
-        messages = [self.getStatus()[0], "Stops: ", "Passengers: "]
+        messages = [str(self.getCurrentFloor()) + " " + self.getStatus()[0], "", "Passengers: "]
         temp = []
         [temp.append(str(i)) for i in self.StopList]
         messages[1] += " ".join(temp)
         messages[2] += str(len(self.Passengers))
         [self.RenderedText.append(config.SMALLFONT.render(i, True, (0, 0, 255))) for i in messages]
     def drawInfo(self):
-        if self.Data["StopList"] != self.StopList or self.Data["Status"] != self.Status or self.Data["CurrentPassengers"] != self.CurrentPassengers:
+        if self.Data["CurrentFloor"] != self.CurrentFloor or self.Data["StopList"] != self.StopList or self.Data["Status"] != self.Status or self.Data["CurrentPassengers"] != self.CurrentPassengers:
             self.renderText()
         distance = 0
         for i in self.RenderedText:
