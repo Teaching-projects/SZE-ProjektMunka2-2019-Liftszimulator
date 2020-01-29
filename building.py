@@ -163,7 +163,8 @@ class Building:
                 if solutionValue > 0:
                     passenger.setStatus("INPROGRESS")
                     inProgressFloors.add(passenger.getStartFloor())
-                    solutionElevator.addToStopList(passenger.getStartFloor())
+                    if passenger.getStartFloor() != solutionElevator.getCurrentFloor():
+                        solutionElevator.addToStopList(passenger.getStartFloor())
         unitedStopLists = set()
         for elevator in self.Elevators:
             if elevator.getTime() > 0.0:
@@ -174,7 +175,10 @@ class Building:
                     if elevator.getStopList():
                         if elevator.getStopList()[0] > elevator.getCurrentFloor(): elevator.setStatus(["UP"])
                         else:                                                      elevator.setStatus(["DOWN"])
-                    else: elevator.setStatus(["IDLE"])
+                    else: 
+                        elevator.setStatus(["IDLE"])
+                        for passenger in elevator.getPassengers(): # Ha a passengerek közül valakinek ez a célállomása akkor kiszáll
+                            if passenger.getDestinationFloor() == elevator.getCurrentFloor():        elevator.deletePassenger(passenger)
             if elevator.getStatus() == ["UP"]:
                 elevator.move(-1)
                 for floor in self.Floors[elevator.getID()]:

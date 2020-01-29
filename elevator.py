@@ -93,7 +93,7 @@ class Elevator:
             config.SCREEN.blit(i, config.pygame.Rect(self.getRect().getRectangle().move(0, distance)))
             distance += 15
     def addToStopList(self, floorNumber):
-        if floorNumber not in self.StopList:
+        if floorNumber not in self.StopList and floorNumber != self.CurrentFloor:
             self.StopList.append(floorNumber)
             if self.Status == ["IDLE"] and self.StopList[0] > self.CurrentFloor:    self.Status = ["UP"]
             elif self.Status == ["IDLE"]:                                           self.Status = ["DOWN"]

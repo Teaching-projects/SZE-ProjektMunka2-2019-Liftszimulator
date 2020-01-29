@@ -56,16 +56,13 @@ while not DONE:
             Base.addPassenger(config.TIMEPASSENGERPAIRS[SECONDS])
             del config.TIMEPASSENGERPAIRS[SECONDS]
 
-
-with open('test.csv', 'w', newline='') as csvfile:
-    fieldnames = ['Start', 'Destination', 'Wait', 'Finish', 'Status']
-    writer = csv.DictWriter(csvfile, fieldnames=fieldnames, delimiter=';')
-    writer.writeheader()
-    for i in Base.Passengers:
-        writer.writerow({'Start': i.getStartFloor(), 'Destination': i.getDestinationFloor(), 'Wait': int(i.getWaitTime() / 1000), 'Finish': int(i.getFinishTime() / 1000), 'Status': i.getStatus()})
-
-
-
+def saveToExcel():
+    with open('test.csv', 'w', newline='') as csvfile:
+        fieldnames = ['Start', 'Destination', 'Wait', 'Finish', 'Status']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames, delimiter=';')
+        writer.writeheader()
+        for i in Base.Passengers:
+            writer.writerow({'Start': i.getStartFloor(), 'Destination': i.getDestinationFloor(), 'Wait': int(i.getWaitTime() / 1000), 'Finish': int(i.getFinishTime() / 1000), 'Status': i.getStatus()})
 
 def statistics():
     sumDistance=0
@@ -97,5 +94,6 @@ def statistics():
 
     plt.show()
 """
-
+saveToExcel()
+config.pygame.quit()
 statistics()
