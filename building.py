@@ -33,7 +33,7 @@ class Building:
             self.Elevators.append(Elevator(i, config.FLOORHEIGHT))
             self.Floors.append([])
             [self.Floors[i].append(Floor(self.Elevators[-1], j, config.FLOORHEIGHT)) for j in range(FloorNumber)]
-        [self.Lines.append([(100, i * config.FLOORHEIGHT), ((config.FLOORWIDTH - 1) + self.ElevatorNumber * config.FLOORDISTANCE, i * config.FLOORHEIGHT)]) for i in range(FloorNumber)]
+        [self.Lines.append([(130, i * config.FLOORHEIGHT), (130 + (self.ElevatorNumber + 1) * config.FLOORWIDTH, i * config.FLOORHEIGHT)]) for i in range(FloorNumber)]
         [self.RenderedText.append(config.BIGFONT.render(str(i), True, config.BLUE)) for i in range(FloorNumber)]
         self.resizeFloorNumbers()
         self.resizePressedButtons()
@@ -62,20 +62,20 @@ class Building:
                 self.Elevators[elevator].setSector(tempList[-1])
     def resize(self, oldsize):
         self.Lines.clear()
-        [self.Lines.append([(100, i * config.FLOORHEIGHT), ((config.FLOORWIDTH - 1) + self.ElevatorNumber * config.FLOORDISTANCE, i * config.FLOORHEIGHT)]) for i in range(self.FloorNumber)]
+        [self.Lines.append([(130, i * config.FLOORHEIGHT), (130 + (self.ElevatorNumber + 1) * config.FLOORWIDTH, i * config.FLOORHEIGHT)]) for i in range(self.FloorNumber)]
         for elevator in self.Elevators:
-            elevatorRect = Rectangle(100 + config.FLOORDISTANCE * elevator.getID(), config.SIZE[1] / (oldsize[1] / elevator.getRect().getY()), config.FLOORWIDTH, config.FLOORHEIGHT, True)
+            elevatorRect = Rectangle(130 + config.FLOORDISTANCE * elevator.getID(), config.SIZE[1] / (oldsize[1] / elevator.getRect().getY()), config.FLOORWIDTH, config.FLOORHEIGHT, True)
             elevator.setRect(elevatorRect)
             for floorlist in self.Floors:
                 for floor in floorlist:
-                    floorRect = Rectangle(100 + config.FLOORDISTANCE * floor.getElevator().getID(), (config.FLOORNUMBER - floor.getFloorNumber() - 1) * config.FLOORHEIGHT, config.FLOORWIDTH, config.FLOORHEIGHT, True)
+                    floorRect = Rectangle(130 + config.FLOORDISTANCE * floor.getElevator().getID(), (config.FLOORNUMBER - floor.getFloorNumber() - 1) * config.FLOORHEIGHT, config.FLOORWIDTH, config.FLOORHEIGHT, True)
                     floor.setRect(floorRect)
         self.resizeFloorNumbers()
         self.resizePressedButtons()
     def resizePressedButtons(self):
         self.PressedButtonsRect.clear()
-        tempRectUp      = config.pygame.Rect(30, (config.FLOORNUMBER - 1) * config.FLOORHEIGHT,                          70, config.FLOORHEIGHT / 2)
-        tempRectDown    = config.pygame.Rect(30, (config.FLOORNUMBER - 1) * config.FLOORHEIGHT + config.FLOORHEIGHT / 2, 70, config.FLOORHEIGHT / 2)
+        tempRectUp      = config.pygame.Rect(60, (config.FLOORNUMBER - 1) * config.FLOORHEIGHT,                          70, config.FLOORHEIGHT / 2)
+        tempRectDown    = config.pygame.Rect(60, (config.FLOORNUMBER - 1) * config.FLOORHEIGHT + config.FLOORHEIGHT / 2, 70, config.FLOORHEIGHT / 2)
         for floor in range(self.FloorNumber):
             self.PressedButtonsRect.append([tempRectUp, tempRectDown])
             tempRectUp = tempRectUp.move(0, -1 * config.FLOORHEIGHT)
