@@ -25,20 +25,12 @@ BIGFONT         = pygame.font.SysFont(None, 64)
 TIMEPASSENGERPAIRS = dict()
 PASSENGERPAIRS     = dict()
 
-MONOCHROME = False
 
-if MONOCHROME:
-    BLUE    = (255, 255, 255)
-    ORANGE  = (255, 255, 255)
-    GRAY    = (  0,   0,   0)
-    RED     = (  0,   0,   0)
-    GREEN   = (255, 255, 255)
-else:
-    BLUE    = (69,  173, 168)
-    ORANGE  = (168, 167, 167)
-    GRAY    = (42,  54,  59)
-    RED     = (232, 74,  95)
-    GREEN   = (153, 184, 152)
+BLUE    = (69,  173, 168)
+ORANGE  = (168, 167, 167)
+GRAY    = (42,  54,  59)
+RED     = (232, 74,  95)
+GREEN   = (153, 184, 152)
 
 
 def isInt(value):
