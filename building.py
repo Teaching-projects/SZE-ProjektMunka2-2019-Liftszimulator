@@ -179,7 +179,9 @@ class Building:
                 elevator.move(-1)
                 for floor in self.Floors[elevator.getID()]:
                     if floor.getRect().getRectangle().contains(elevator.getRect().getRectangle()):
-                        elevator.setCurrentFloor(floor.getFloorNumber())
+                        if elevator.getCurrentFloor()!=floor.getFloorNumber():
+                            elevator.setCurrentFloor(floor.getFloorNumber())
+                            elevator.sumDistanceIncrease()
                 if elevator.getStopList() and elevator.getCurrentFloor() == elevator.getStopList()[0]:
                     elevator.setStatus(["IDLE"])
                     elevator.setTime(3000)
@@ -196,7 +198,9 @@ class Building:
                 elevator.move(1)
                 for floor in self.Floors[elevator.getID()]:
                     if floor.getRect().getRectangle().contains(elevator.getRect().getRectangle()):
-                        elevator.setCurrentFloor(floor.getFloorNumber())
+                        if elevator.getCurrentFloor()!=floor.getFloorNumber():
+                            elevator.setCurrentFloor(floor.getFloorNumber())
+                            elevator.sumDistanceIncrease()
                 if elevator.getStopList() and elevator.getCurrentFloor() == elevator.getStopList()[0]:
                     elevator.setStatus(["IDLE"])
                     elevator.setTime(3000)
@@ -211,4 +215,4 @@ class Building:
                         elevator.addToStopList(passenger.getDestinationFloor())
             [unitedStopLists.add(stopListItem) for stopListItem in elevator.getStopList()]
         [passenger.setStatus("WAITING") for passenger in self.Passengers if passenger.getStatus() == "INPROGRESS" and passenger.getStartFloor() not in list(unitedStopLists)]
-        self.draw()
+        self.draw(0)

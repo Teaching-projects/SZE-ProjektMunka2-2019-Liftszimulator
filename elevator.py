@@ -16,6 +16,7 @@ class Elevator:
         self.RenderedText       = []
         self.SectorList         = []
         self.Time               = 0.0
+        self.sumDistance        = 0
         self.renderText(0)
         self.setSector()
     def getID(self):                        return self.ID
@@ -33,6 +34,8 @@ class Elevator:
     def move(self, y):                      self.Rect.move(y)
     def getTime(self):                      return self.Time
     def setTime(self, Time):                self.Time = Time
+    def sumDistanceIncrease(self):          self.sumDistance+=1
+    def getSumDistance(self):               return self.sumDistance
     def setSector(self):
         if config.FLOORNUMBER > config.ELEVATORNUMBER:
             if self.ID == 0:
@@ -105,14 +108,22 @@ class Elevator:
             self.checkPassengers(Passengers)
         elif self.Status == ["UP"]:
             self.move(-1)
+            for floor in Floor:
+                if floor.getRect().getRectangle().contains(self.getRect().getRectangle()):
+                    if self.CurrentFloor!=floor.getFloorNumber():
+                        self.sumDistance+=1
+                        self.CurrentFloor = floor.getFloorNumber()
             if Floor[config.FLOORNUMBER - 1 - self.StopList[0]].getRect().getRectangle().contains(self.getRect().getRectangle()):
-                self.setCurrentFloor(self.StopList[0])
                 self.setStatus(["IDLE"])
                 self.StopList.pop(0)
         elif self.Status == ["DOWN"]:
             self.move(1)
+            for floor in Floor:
+                if floor.getRect().getRectangle().contains(self.getRect().getRectangle()):
+                    if self.CurrentFloor!=floor.getFloorNumber():
+                        self.sumDistance+=1
+                        self.CurrentFloor = floor.getFloorNumber()
             if Floor[config.FLOORNUMBER - 1 - self.StopList[0]].getRect().getRectangle().contains(self.getRect().getRectangle()):
-                self.setCurrentFloor(self.StopList[0])
                 self.setStatus(["IDLE"])
                 self.StopList.pop(0)
     def simulateSectorAlgorithm(self, Floor, Passengers, Time):
@@ -175,7 +186,9 @@ class Elevator:
             self.move(-1)
             for floor in Floor:
                 if floor.getRect().getRectangle().contains(self.getRect().getRectangle()):
-                    self.CurrentFloor = floor.getFloorNumber()
+                    if self.CurrentFloor!=floor.getFloorNumber():
+                        self.sumDistance+=1
+                        self.CurrentFloor = floor.getFloorNumber()
             if self.CurrentFloor == self.StopList[0]:
                 for passenger in self.Passengers: # Ha a passengerek közül valakinek ez a célállomása akkor kiszáll
                     if passenger.getDestinationFloor() == self.CurrentFloor:        self.deletePassenger(passenger)
@@ -186,7 +199,9 @@ class Elevator:
             self.move(1)
             for floor in Floor:
                 if floor.getRect().getRectangle().contains(self.getRect().getRectangle()):
-                    self.CurrentFloor = floor.getFloorNumber()
+                    if self.CurrentFloor!=floor.getFloorNumber():
+                        self.sumDistance+=1
+                        self.CurrentFloor = floor.getFloorNumber()
             if self.CurrentFloor == self.StopList[0]:
                 for passenger in self.Passengers: # Ha a passengerek közül valakinek ez a célállomása akkor kiszáll
                     if passenger.getDestinationFloor() == self.CurrentFloor:        self.deletePassenger(passenger)
