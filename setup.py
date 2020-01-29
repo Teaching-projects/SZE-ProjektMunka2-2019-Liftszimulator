@@ -9,5 +9,6 @@ setup(name='ElevatorSimulator',
       install_requires=[
           'pygame == 1.9.6',
           'matplotlib',
+          'numpy',
       ]
       )
