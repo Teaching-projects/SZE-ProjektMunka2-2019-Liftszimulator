@@ -70,6 +70,7 @@ def statistics():
         sumDistance+=i.getSumDistance()
     maxWait=0
     finishSum=0
+    finishAverage=0
     for i in Base.Passengers:
         finishSum+=int(i.getFinishTime() / 1000)
         if int(i.getWaitTime() / 1000)>maxWait:
@@ -77,12 +78,16 @@ def statistics():
     if(len(Base.Passengers)>0):
         finishAverage=finishSum/len(Base.Passengers)
 
-
-    bars = ['Liftek altal ossz megtett tav', 'Atlag varakozasi ido', 'Max varakozasi ido']
+    plt.title('Statistics')
+    fig = plt.gcf()
+    fig.canvas.set_window_title('Elevator Simulator')
+    bars = ['Sumdistance by elevators', 'Avg WaitTime', 'Max WaitTime']
     datas = [sumDistance,finishAverage,maxWait]
     y_pos = np.arange(len(bars))
     plt.barh(y_pos,datas)
     plt.yticks(y_pos, bars)
+    mng = plt.get_current_fig_manager()
+    mng.window.state("zoomed")
     plt.show()
 """
     ax.barh(y_pos, performance, xerr=error, align='center')
