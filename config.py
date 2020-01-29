@@ -59,7 +59,7 @@ def menu():
         global ALGORITHM
         global TIMEPASSENGERPAIRS
         global SCREEN
-        global LOFASZ
+        global PASSENGERPAIRS
         if EmeletSzam.get()     and isInt(EmeletSzam.get()):
             FLOORNUMBER     =   int(EmeletSzam.get())
             FLOORHEIGHT     =   SIZE[1] / FLOORNUMBER

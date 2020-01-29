@@ -4,7 +4,6 @@ import pygame
 import csv
 import numpy as np
 import matplotlib.pyplot as plt
-import collections
 
 DONE     = False
 TIME     = 0
@@ -79,10 +78,8 @@ def statistics():
             maxWait=int(i.getWaitTime() / 1000)
     if(len(Base.Passengers)>0):
         finishAverage=finishSum/len(Base.Passengers)
-
     x = ['Sumdistance by elevators', 'Avg WaitTime', 'Max WaitTime']
     y = [sumDistance,finishAverage,maxWait]
-
     fig, (ax1, ax2) = plt.subplots(1, 2)
     fig.canvas.set_window_title('Elevator Simulator')    
     width = 0.75 # the width of the bars 
@@ -93,24 +90,19 @@ def statistics():
     ax1.set_yticks(ind+width/2)
     ax1.set_yticklabels(x, minor=False)
     plt.title('Elevator simulator statistics')    
-    
-    sortedTimePassengerPairs = collections.OrderedDict(sorted(config.PASSENGERPAIRS.items()))
-    t = sortedTimePassengerPairs.keys()
-    s = sortedTimePassengerPairs.values()
-
+    sortedTimePassengerPairs = sorted(config.PASSENGERPAIRS.items())
+    t, s = zip(*sortedTimePassengerPairs)
     ax2.plot(t, s)
     yint = range(min(s), max(s)+1)
     ax2.set_yticks(yint)
-    ax2.set(xlabel='time(s)', ylabel='Generated passengers',
-        title='Passenger generation')
+    ax2.set(xlabel='time(s)', ylabel='Generated passengers', title='Passenger generation')
     ax2.grid()
-
-
-
-
     mng = plt.get_current_fig_manager()
     mng.window.state("zoomed")
     plt.show()
 saveToExcel()
 config.pygame.quit()
 statistics()
+
+
+
