@@ -8,5 +8,6 @@ setup(name='ElevatorSimulator',
       author_email='email1@gmail.com, email2@gmail.com, email3@gmail.com',
       install_requires=[
           'pygame == 1.9.6',
+          'matplotlib',
       ]
       )
