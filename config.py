@@ -101,7 +101,7 @@ def menu():
     choices = [
         ("Algorithm 1 - Nearest Car"),
         ("Algorithm 2 - Sector"),
-        ("Algorithm 3 - "),
+        ("Algorithm 3 - Up and Down"),
         ("Manual"),
     ]
     tk.Label(root, 

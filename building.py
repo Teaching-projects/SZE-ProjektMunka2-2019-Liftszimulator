@@ -145,7 +145,7 @@ class Building:
         elif Algorithm == 1:
             [i.simulateSectorAlgorithm(self.Floors[i.getID()], self.Passengers, Time) for i in self.Elevators]
         elif Algorithm == 2:
-            pass
+            self.simulateUpDown(Time)
         elif Algorithm == 3:
             [i.simulateManualControlling(self.Floors[i.getID()], self.Passengers) for i in self.Elevators]
         self.draw(Algorithm)
@@ -243,3 +243,161 @@ class Building:
             [unitedStopLists.add(stopListItem) for stopListItem in elevator.getStopList()]
         [passenger.setStatus("WAITING") for passenger in self.Passengers if passenger.getStatus() == "INPROGRESS" and passenger.getStartFloor() not in list(unitedStopLists)]
         self.draw(0)
+    def simulateUpDown(self, Time):
+        tmp=0
+        if config.ELEVATORNUMBER%2==1:
+            tmp=config.ELEVATORNUMBER+1
+        else:
+            tmp=config.ELEVATORNUMBER
+        if config.ELEVATORNUMBER >= 6: stop = 1
+        elif config.ELEVATORNUMBER >= 4: stop = 2
+        elif config.ELEVATORNUMBER==2: stop = 8
+        else:                          stop = 6 - config.ELEVATORNUMBER
+        inprogress = []
+        """ for i in self.Elevators:
+                for j in i.getStopList():
+                    if j not in inprogress:
+                        inprogress.append(j)
+                for j in i.getPassengers():
+                    if j.getDestinationFloor() in inprogress:
+                        inprogress.remove(j.getDestinationFloor()) """
+        upPassengers = []
+        downPassengers = []
+        [upPassengers.append(passenger) for passenger in self.Passengers if passenger.getDestinationFloor()>passenger.getStartFloor() and passenger.getStatus() in ["WAITING", "INPROGRESS"]]
+        [downPassengers.append(passenger) for passenger in self.Passengers if passenger.getDestinationFloor()<passenger.getStartFloor() and passenger.getStatus() in ["WAITING", "INPROGRESS"]]
+        destination = []
+        for i in range(config.ELEVATORNUMBER):
+            for passenger in self.Elevators[i].getPassengers(): # Ha a passengerek közül valakinek ez a célállomása akkor kiszáll
+                if passenger.getDestinationFloor() == self.Elevators[i].getCurrentFloor():        self.Elevators[i].deletePassenger(passenger)
+            if self.Elevators[i].getTime() > 0.0:
+                self.Elevators[i].setStatus(["WAITING: " + str(self.Elevators[i].getTime())])
+                self.Elevators[i].setTime(self.Elevators[i].getTime() - Time)
+                if self.Elevators[i].getTime() <= 0.0:
+                    self.Elevators[i].setTime(0.0)
+                    if self.Elevators[i].getStopList():
+                        if self.Elevators[i].getStopList()[0] > self.Elevators[i].getCurrentFloor():    self.Elevators[i].setStatus(["UP"])
+                        else:                                                                           self.Elevators[i].setStatus(["DOWN"])
+                    else: self.Elevators[i].setStatus(["IDLE"])
+            if i<int(tmp/2):
+                for passenger in upPassengers:
+                    if len(self.Elevators[i].getStopList())<stop and passenger.getStartFloor() == 0 and self.Elevators[i].getCurrentFloor() == 0 and self.Elevators[i].getCurrentPassengers() < self.Elevators[i].getMaxPassengers() and passenger.getStatus()!="INLIFT":
+                        self.Elevators[i].addPassenger(passenger)
+                        passenger.setStatus("INLIFT")
+                        self.Elevators[i].addToStopList(passenger.getDestinationFloor())
+                        destination.append(passenger.getDestinationFloor())
+                for passenger in upPassengers:
+                    if passenger.getStartFloor() != self.Elevators[i].getCurrentFloor() and passenger.getStartFloor() not in destination:
+                        self.Elevators[i].addToStopList(passenger.getStartFloor())
+                        passenger.setStatus("INPROGRESS")
+                        destination.append(passenger.getStartFloor())
+                for passenger in self.Elevators[i].getPassengers():
+                    if passenger.getDestinationFloor() != self.Elevators[i].getCurrentFloor(): self.Elevators[i].addToStopList(passenger.getDestinationFloor())
+                if self.Elevators[i].getStopList():
+                    if self.Elevators[i].getStatus()==(["UP"]):
+                        self.Elevators[i].move(-1)
+                        for floor in self.Floors[self.Elevators[i].getID()]:
+                            if floor.getRect().getRectangle().contains(self.Elevators[i].getRect().getRectangle()):
+                                self.Elevators[i].setCurrentFloor(floor.getFloorNumber())
+                                self.Elevators[i].sumDistanceIncrease()
+                        if self.Elevators[i].getCurrentFloor() in self.Elevators[i].getStopList():
+                            self.Elevators[i].setStatus(["IDLE"])
+                            self.Elevators[i].setTime(3000)
+                            self.Elevators[i].getStopList().remove(self.Elevators[i].getCurrentFloor())
+                            for passenger in self.Elevators[i].getPassengers():
+                                if passenger.getDestinationFloor()==self.Elevators[i].getCurrentFloor():
+                                    self.Elevators[i].deletePassenger(passenger)
+                            for passenger in upPassengers:
+                                if passenger.getStatus() in ["INPROGRESS", "WAITING"] and self.Elevators[i].getCurrentPassengers() < self.Elevators[i].getMaxPassengers() and passenger.getStartFloor() == self.Elevators[i].getCurrentFloor():
+                                    self.Elevators[i].addPassenger(passenger)
+                            if self.Elevators[i].getCurrentPassengers() == self.Elevators[i].getMaxPassengers():
+                                [self.Elevators[i].deletePassenger(passenger) for passenger in self.Elevators[i].getPassengers() if passenger.getDestinationFloor() == self.Elevators[i].getCurrentFloor()]
+                            for passenger in self.Elevators[i].getPassengers():
+                                if passenger.getDestinationFloor() != self.Elevators[i].getCurrentFloor(): self.Elevators[i].addToStopList(passenger.getDestinationFloor())
+                    if self.Elevators[i].getStatus()==(["DOWN"]):
+                        self.Elevators[i].move(1)
+                        for floor in self.Floors[self.Elevators[i].getID()]:
+                            if floor.getRect().getRectangle().contains(self.Elevators[i].getRect().getRectangle()):
+                                self.Elevators[i].setCurrentFloor(floor.getFloorNumber())
+                                self.Elevators[i].sumDistanceIncrease()
+                        if self.Elevators[i].getStopList() and self.Elevators[i].getCurrentFloor() in self.Elevators[i].getStopList():
+                            self.Elevators[i].setStatus(["IDLE"])
+                            self.Elevators[i].setTime(3000)
+                            self.Elevators[i].getStopList().remove(self.Elevators[i].getCurrentFloor())
+                            for passenger in self.Elevators[i].getPassengers():
+                                if passenger.getDestinationFloor()==self.Elevators[i].getCurrentFloor():
+                                    self.Elevators[i].deletePassenger(passenger)
+                            for passenger in upPassengers:
+                                if passenger.getStatus() in ["INPROGRESS", "WAITING"] and self.Elevators[i].getCurrentPassengers() < self.Elevators[i].getMaxPassengers() and passenger.getStartFloor() == self.Elevators[i].getCurrentFloor():
+                                    self.Elevators[i].addPassenger(passenger)
+                            for passenger in self.Elevators[i].getPassengers():
+                                if passenger.getDestinationFloor() != self.Elevators[i].getCurrentFloor(): self.Elevators[i].addToStopList(passenger.getDestinationFloor())
+                else:
+                    if self.Elevators[i].getCurrentFloor()!=0 and self.Elevators[i].getStatus()==(["IDLE"]) and len(self.Elevators[i].getStopList())==0: 
+                        self.Elevators[i].addToStopList(0)
+            else:
+                for passenger in downPassengers:
+                    if len(self.Elevators[i].getStopList())<stop:
+                        if passenger.getStatus()=="WAITING":
+                            if passenger.getStartFloor()==0 and self.Elevators[i].getCurrentFloor() == 0 and self.Elevators[i].getCurrentPassengers() < self.Elevators[i].getMaxPassengers():
+                                self.Elevators[i].addPassenger(passenger)
+                                passenger.setStatus("INLIFT")
+                                self.Elevators[i].addToStopList(passenger.getDestinationFloor())
+                for passenger in upPassengers:
+                    if passenger.getStatus()=="WAITING" and passenger.getStartFloor() != self.Elevators[i].getCurrentFloor():
+                        if passenger.getStartFloor() not in inprogress:
+                            inprogress.append(passenger.getStartFloor())
+                            self.Elevators[i].addToStopList(passenger.getStartFloor())
+                            passenger.setStatus("INPROGRESS")   
+                for passenger in self.Elevators[i].getPassengers():
+                    if passenger.getDestinationFloor()==self.Elevators[i].getCurrentFloor():
+                        self.Elevators[i].deletePassenger(passenger)
+                if self.Elevators[i].getStatus()==(["IDLE"]):
+                    for passenger in downPassengers:
+                        if passenger.getStatus()=="WAITING":
+                            if passenger.getStartFloor() not in inprogress:
+                                inprogress.append(passenger.getStartFloor())
+                                self.Elevators[i].addToStopList(passenger.getStartFloor())
+                if self.Elevators[i].getStopList():
+                    if self.Elevators[i].getStatus()==(["UP"]):
+                        self.Elevators[i].move(-1)
+                        for floor in self.Floors[self.Elevators[i].getID()]:
+                            if floor.getRect().getRectangle().contains(self.Elevators[i].getRect().getRectangle()):
+                                self.Elevators[i].setCurrentFloor(floor.getFloorNumber())
+                                self.Elevators[i].sumDistanceIncrease()
+                        if self.Elevators[i].getStopList() and self.Elevators[i].getCurrentFloor() in self.Elevators[i].getStopList():
+                            self.Elevators[i].setStatus(["IDLE"])
+                            self.Elevators[i].setTime(3000)
+                            self.Elevators[i].getStopList().remove(self.Elevators[i].getCurrentFloor())
+                            for passenger in self.Elevators[i].getPassengers():
+                                if passenger.getDestinationFloor()==self.Elevators[i].getCurrentFloor():
+                                    self.Elevators[i].deletePassenger(passenger)
+                            for passenger in downPassengers:
+                                if passenger.getStatus() in ["INPROGRESS", "WAITING"] and self.Elevators[i].getCurrentPassengers() < self.Elevators[i].getMaxPassengers() and passenger.getStartFloor() == self.Elevators[i].getCurrentFloor():
+                                    self.Elevators[i].addPassenger(passenger)
+                            if self.Elevators[i].getCurrentPassengers() == self.Elevators[i].getMaxPassengers():
+                                destinationList = []
+                                [self.Elevators[i].deletePassenger(passenger) for passenger in self.Elevators[i].getPassengers() if passenger.getDestinationFloor() == self.Elevators[i].getCurrentFloor()]
+                                [destinationList.append(passenger.getDestinationFloor()) for passenger in self.Elevators[i].getPassengers() if passenger.getDestinationFloor() not in destinationList]
+                                self.Elevators[i].setStopList(sorted(destinationList, reverse = True))
+                            for passenger in self.Elevators[i].getPassengers():
+                                if passenger.getDestinationFloor() != self.Elevators[i].getCurrentFloor(): self.Elevators[i].addToStopList(passenger.getDestinationFloor())
+                    if self.Elevators[i].getStatus()==(["DOWN"]):
+                        self.Elevators[i].move(1)
+                        for floor in self.Floors[self.Elevators[i].getID()]:
+                            if floor.getRect().getRectangle().contains(self.Elevators[i].getRect().getRectangle()):
+                                self.Elevators[i].setCurrentFloor(floor.getFloorNumber())
+                                self.Elevators[i].sumDistanceIncrease()
+                        if self.Elevators[i].getStopList() and self.Elevators[i].getCurrentFloor() in self.Elevators[i].getStopList():
+                            self.Elevators[i].setStatus(["IDLE"])
+                            self.Elevators[i].setTime(3000)
+                            self.Elevators[i].getStopList().remove(self.Elevators[i].getCurrentFloor())
+                            for passenger in self.Elevators[i].getPassengers():
+                                if passenger.getDestinationFloor()==self.Elevators[i].getCurrentFloor():
+                                    self.Elevators[i].deletePassenger(passenger)
+                            for passenger in downPassengers:
+                                if passenger.getStatus() in ["INPROGRESS", "WAITING"] and self.Elevators[i].getCurrentPassengers() < self.Elevators[i].getMaxPassengers() and passenger.getStartFloor() == self.Elevators[i].getCurrentFloor():
+                                    self.Elevators[i].addPassenger(passenger)
+                            for passenger in self.Elevators[i].getPassengers():
+                                if passenger.getDestinationFloor() != self.Elevators[i].getCurrentFloor(): self.Elevators[i].addToStopList(passenger.getDestinationFloor())
+                elif self.Elevators[i].getCurrentFloor()!=config.FLOORNUMBER-1 and self.Elevators[i].getStatus()==(["IDLE"]) and len(self.Elevators[i].getStopList())==0: 
+                    self.Elevators[i].addToStopList(config.FLOORNUMBER-1)
