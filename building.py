@@ -37,6 +37,29 @@ class Building:
         [self.RenderedText.append(config.BIGFONT.render(str(i), True, config.BLUE)) for i in range(FloorNumber)]
         self.resizeFloorNumbers()
         self.resizePressedButtons()
+        self.setSectorList()
+    def setSectorList(self):
+        if config.FLOORNUMBER <= config.ELEVATORNUMBER:
+            for elevator in self.Elevators:
+                if config.FLOORNUMBER > elevator.getID():       elevator.setSector([elevator.getID()])
+                else:                                           elevator.setSector([elevator.getID() % config.FLOORNUMBER])
+        elif config.FLOORNUMBER % config.ELEVATORNUMBER != 0:
+            tempList = []
+            wholeNumber = int (config.FLOORNUMBER / config.ELEVATORNUMBER)
+            theRestOfIt = config.FLOORNUMBER % config.ELEVATORNUMBER
+            tempInt = wholeNumber
+            tempList.append([0, wholeNumber])
+            self.Elevators[0].setSector(tempList[-1])
+            theRestOfIt -= 1
+            for elevator in range(1, config.ELEVATORNUMBER):
+                if theRestOfIt > 0:
+                    tempList.append([tempInt + 1, tempInt + 1 + wholeNumber])
+                    theRestOfIt -= 1
+                    tempInt = tempList[-1][1]
+                else:
+                    tempList.append([tempInt + 1])
+                    tempInt = tempList[-1][0]
+                self.Elevators[elevator].setSector(tempList[-1])
     def resize(self, oldsize):
         self.Lines.clear()
         [self.Lines.append([(100, i * config.FLOORHEIGHT), ((config.FLOORWIDTH - 1) + self.ElevatorNumber * config.FLOORDISTANCE, i * config.FLOORHEIGHT)]) for i in range(self.FloorNumber)]

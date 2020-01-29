@@ -18,7 +18,7 @@ class Elevator:
         self.Time               = 0.0
         self.sumDistance        = 0
         self.renderText(0)
-        self.setSector()
+        #self.setSector()
     def getID(self):                        return self.ID
     def getCurrentPassengers(self):         return self.CurrentPassengers
     def getCurrentFloor(self):              return self.CurrentFloor
@@ -36,20 +36,7 @@ class Elevator:
     def setTime(self, Time):                self.Time = Time
     def sumDistanceIncrease(self):          self.sumDistance+=1
     def getSumDistance(self):               return self.sumDistance
-    def setSector(self):
-        if config.FLOORNUMBER > config.ELEVATORNUMBER:
-            if self.ID == 0:
-                sectorEnd   = int(int(config.FLOORNUMBER / config.ELEVATORNUMBER) + (config.FLOORNUMBER / config.ELEVATORNUMBER) % 1 * config.ELEVATORNUMBER)
-                for i in range(sectorEnd):
-                    self.SectorList.append(i)
-            else:
-                sectorStart = int(self.ID * int((config.FLOORNUMBER / config.ELEVATORNUMBER)) + (config.FLOORNUMBER / config.ELEVATORNUMBER) % 1 * config.ELEVATORNUMBER)
-                sectorEnd   = int(sectorStart + int((config.FLOORNUMBER / config.ELEVATORNUMBER)))
-                for i in range(sectorStart, sectorEnd):
-                    self.SectorList.append(i)
-        else:
-            if config.FLOORNUMBER > self.ID:    self.SectorList.append(self.ID)
-            else:                               self.SectorList.append(self.ID % config.FLOORNUMBER)
+    def setSector(self, sectorList):        self.SectorList = sectorList
     def deletePassenger(self, Passenger):
         self.Passengers.remove(Passenger)
         self.setCurrentPassengers()
