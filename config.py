@@ -23,6 +23,7 @@ SCREEN          = None
 SMALLFONT       = pygame.font.SysFont(None, 16)
 BIGFONT         = pygame.font.SysFont(None, 64)
 TIMEPASSENGERPAIRS = dict()
+PASSENGERPAIRS     = dict()
 
 MONOCHROME = False
 
@@ -58,6 +59,7 @@ def menu():
         global ALGORITHM
         global TIMEPASSENGERPAIRS
         global SCREEN
+        global LOFASZ
         if EmeletSzam.get()     and isInt(EmeletSzam.get()):
             FLOORNUMBER     =   int(EmeletSzam.get())
             FLOORHEIGHT     =   SIZE[1] / FLOORNUMBER
@@ -74,8 +76,10 @@ def menu():
                 spawnSecond = random.randint(1, TIMEINTERVALL)
                 if spawnSecond in TIMEPASSENGERPAIRS:
                     TIMEPASSENGERPAIRS[spawnSecond] = TIMEPASSENGERPAIRS[spawnSecond] + 1
+                    PASSENGERPAIRS[spawnSecond]     = PASSENGERPAIRS[spawnSecond] + 1
                 else:
                     TIMEPASSENGERPAIRS[spawnSecond] = 1
+                    PASSENGERPAIRS[spawnSecond]             = 1
         if AlapUtasSzam.get()   and isInt(AlapUtasSzam.get()):
             BASEPASSENGERS  = int(AlapUtasSzam.get())
         ALGORITHM       =   int(choicesValue.get())

@@ -104,7 +104,7 @@ class Building:
     def getFloors(self):        return self.Floors
     def getElevators(self):     return self.Elevators
     def getPassengers(self):    return self.Passengers
-    def addPassenger(self, Passengernumber):    [self.Passengers.append(Passenger((random.sample((range(self.FloorNumber - 1)), 2)))) for i in range(Passengernumber)]
+    def addPassenger(self, Passengernumber):    [self.Passengers.append(Passenger((random.sample((range(self.FloorNumber)), 2)))) for i in range(Passengernumber)]
     def simulatePassengers(self, Time):         [i.increaseTime(Time) for i in self.Passengers]
     def draw(self, Algorithm):
         config.SCREEN.fill(config.ORANGE)
@@ -127,7 +127,7 @@ class Building:
             [i.simulateManualControlling(self.Floors[i.getID()], self.Passengers) for i in self.Elevators]
         self.draw(Algorithm)
     def simulateNearestCar(self, Time):
-        maxStop = 3
+        maxStop = 2
         inProgressFloors = set()
         [inProgressFloors.add(passenger.getStartFloor()) for passenger in self.Passengers if passenger.getStatus() == "INPROGRESS"]
         waitingPassengers = []
@@ -177,7 +177,7 @@ class Building:
                         else:                                                      elevator.setStatus(["DOWN"])
                     else: 
                         elevator.setStatus(["IDLE"])
-                        for passenger in elevator.getPassengers(): # Ha a passengerek közül valakinek ez a célállomása akkor kiszáll
+                        for passenger in elevator.getPassengers():
                             if passenger.getDestinationFloor() == elevator.getCurrentFloor():        elevator.deletePassenger(passenger)
             if elevator.getStatus() == ["UP"]:
                 elevator.move(-1)

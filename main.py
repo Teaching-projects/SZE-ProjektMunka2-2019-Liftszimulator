@@ -4,6 +4,7 @@ import pygame
 import csv
 import numpy as np
 import matplotlib.pyplot as plt
+import collections
 
 DONE     = False
 TIME     = 0
@@ -11,6 +12,7 @@ SECONDS  = 0
 
 config.menu()
 Base = Building(config.FLOORNUMBER, config.ELEVATORNUMBER)
+
 
 def resize():
     old_surface_saved = config.SCREEN
@@ -78,27 +80,37 @@ def statistics():
     if(len(Base.Passengers)>0):
         finishAverage=finishSum/len(Base.Passengers)
 
-    plt.title('Statistics')
-    fig = plt.gcf()
-    fig.canvas.set_window_title('Elevator Simulator')
-    bars = ['Sumdistance by elevators', 'Avg WaitTime', 'Max WaitTime']
-    datas = [sumDistance,finishAverage,maxWait]
-    y_pos = np.arange(len(bars))
-    plt.barh(y_pos,datas)
-    plt.yticks(y_pos, bars)
+    x = ['Sumdistance by elevators', 'Avg WaitTime', 'Max WaitTime']
+    y = [sumDistance,finishAverage,maxWait]
+
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    fig.canvas.set_window_title('Elevator Simulator')    
+    width = 0.75 # the width of the bars 
+    ind = np.arange(len(y))  # the x locations for the groups
+    for i, v in enumerate(y):
+        ax1.text(v, i, str(v), color='blue', fontweight='bold')
+    ax1.barh(ind, y, width, color="blue")
+    ax1.set_yticks(ind+width/2)
+    ax1.set_yticklabels(x, minor=False)
+    plt.title('Elevator simulator statistics')    
+    
+    sortedTimePassengerPairs = collections.OrderedDict(sorted(config.PASSENGERPAIRS.items()))
+    t = sortedTimePassengerPairs.keys()
+    s = sortedTimePassengerPairs.values()
+
+    ax2.plot(t, s)
+    yint = range(min(s), max(s)+1)
+    ax2.set_yticks(yint)
+    ax2.set(xlabel='time(s)', ylabel='Generated passengers',
+        title='Passenger generation')
+    ax2.grid()
+
+
+
+
     mng = plt.get_current_fig_manager()
     mng.window.state("zoomed")
     plt.show()
-"""
-    ax.barh(y_pos, performance, xerr=error, align='center')
-    ax.set_yticks(y_pos)
-    ax.set_yticklabels(people)
-    ax.invert_yaxis()  # labels read top-to-bottom
-    ax.set_xlabel('Performance')
-    ax.set_title('How fast do you want to go today?')
-
-    plt.show()
-"""
 saveToExcel()
 config.pygame.quit()
 statistics()
