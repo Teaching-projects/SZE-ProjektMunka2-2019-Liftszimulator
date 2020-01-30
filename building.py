@@ -150,7 +150,7 @@ class Building:
             [i.simulateManualControlling(self.Floors[i.getID()], self.Passengers) for i in self.Elevators]
         self.draw(Algorithm)
     def simulateNearestCar(self, Time):
-        maxStop = 2
+        maxStop = 3
         inProgressFloors = set()
         [inProgressFloors.add(passenger.getStartFloor()) for passenger in self.Passengers if passenger.getStatus() == "INPROGRESS"]
         waitingPassengers = []

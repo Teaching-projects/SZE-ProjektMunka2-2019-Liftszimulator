@@ -68,7 +68,7 @@ class Elevator:
         if Algorithm != 3:
             [temp.append(str(i)) for i in self.StopList]
         else:
-            [temp.append(str(passenger.getDestinationFloor())) for passenger in self.Passengers if passenger.getDestinationFloor() in temp]
+            [temp.append(str(passenger.getDestinationFloor())) for passenger in self.Passengers if str(passenger.getDestinationFloor()) not in temp]
         messages[1] += " ".join(temp)
         messages[2] += str(len(self.Passengers))
         [self.RenderedText.append(config.SMALLFONT.render(i, True, config.BLUE)) for i in messages]
